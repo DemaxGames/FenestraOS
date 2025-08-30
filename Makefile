@@ -21,7 +21,7 @@ ZSRC = src/boot/zeroes.asm #Zeroes source file
 
 $(TARGET): clear debug boot.bin kernel.bin zeroes.bin
 	cat "boot.bin" "kernel.bin" > "full.bin"
-	cat "full.bin" "zeroes.bin" > "$(TARGET).iso"
+	cat "full.bin" "garbage.bin" > "$(TARGET).iso"
 
 	@echo ====================================================================
 	@echo KERNEL REQUIERS $$(( ($(shell wc -c < boot.bin) + $(shell wc -c < kernel.bin)) / 512 + 1)) SECTORS

@@ -3,20 +3,27 @@
 CODE_SEG equ Code_Segment_Descriptor - GDT_Start
 DATA_SEG equ Data_Segment_Descriptor - GDT_Start
 KERNEL_LOCATION equ 0x7e00
-KERNEL_SIZE equ 10  ;kernel size in sectors, must be < 72
+KERNEL_SIZE equ 900 ;kernel size in sectors, must be < 128
 mov [diskNum], dl
+
+xor ax, ax
+mov ds, ax
+mov es, ax
+mov ss, ax
+mov bp, 0x7c00
+mov sp, bp
 
 mov ah, 0x00
 mov al, 0x03
 int 0x10
 
-mov bx, msg
-call print
 
-mov ax, [diskNum]
-mov bx, KERNEL_LOCATION
-mov cx, KERNEL_SIZE
-call load_kernel_from_disk
+loading_kernel:
+    mov ax, [diskNum]
+    mov bx, KERNEL_LOCATION
+    mov cx, KERNEL_SIZE
+    call load_kernel_from_disk
+
 
 enabling_a20:
     mov bx, msg1
@@ -40,6 +47,7 @@ enabling_gdt:
 msg: db "Loading from disk...", 10, 13, 0
 msg1: db "Enabling A20 Line...", 10, 13, 0
 diskNum: db 0
+
 
 %include "disk.asm"
 %include "gdt.asm"
