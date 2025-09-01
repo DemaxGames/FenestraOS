@@ -3,7 +3,7 @@
 CODE_SEG equ Code_Segment_Descriptor - GDT_Start
 DATA_SEG equ Data_Segment_Descriptor - GDT_Start
 KERNEL_LOCATION equ 0x7e00
-KERNEL_SIZE equ 900 ;kernel size in sectors, must be < 128
+KERNEL_SIZE equ 5 ;kernel size in sectors, must be < 128
 mov [diskNum], dl
 
 xor ax, ax

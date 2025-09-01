@@ -7,5 +7,5 @@ start_protected_mode:
     mov gs, ax
     mov ebp, 0x90000
     mov esp, ebp
-
+    
     jmp KERNEL_LOCATION
