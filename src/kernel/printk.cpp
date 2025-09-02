@@ -1,7 +1,7 @@
 #include <fenestra/kernel.h>
 
 #define NUM_BUFF_SIZE 30
-#define BIN_BUFF_SIZE 64
+#define BIN_BUFF_SIZE 17
 
 uint8_t printk_x = 0;
 uint8_t printk_y = 0;
@@ -51,8 +51,9 @@ void printInt(uint8_t *x, uint8_t *y, vga::color col, int num){
     (*x)--;
 }
 
-void printBin(uint8_t *x, uint8_t *y, vga::color col, int num){
+void printBin(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
     char buf[BIN_BUFF_SIZE];
+    for(int i = 0; i < BIN_BUFF_SIZE; i++) buf[i] = '0';
     int ptr = BIN_BUFF_SIZE-1;
     int n = num;
     if(n < 0) n *= -1;
@@ -61,10 +62,9 @@ void printBin(uint8_t *x, uint8_t *y, vga::color col, int num){
         buf[ptr] = (n % 2) + '0';
         n /= 2;
         if(n == 0) break;
-    }  
-    if(num < 0) buf[--ptr] = '-';
+    } 
 
-    for(int i = ptr; i < BIN_BUFF_SIZE; i++){
+    for(int i = 0; i < BIN_BUFF_SIZE; i++){
         vga::putc(*x, *y, col, buf[i]);
         (*x)++;
         if(*x > 80){
@@ -148,6 +148,9 @@ int printk(uint8_t x, uint8_t y, const char *s, ...){
                         break;
                     case 'i':
                         printInt(&x, &y, vga::color::cyan, va_arg(argList, int));
+                        break;
+                    case 'b':
+                        printBin(&x, &y, vga::color::cyan, va_arg(argList, int));
                         break;
                     case 's':
                         printString(&x, &y, vga::color::light_cyan, va_arg(argList, const char*));

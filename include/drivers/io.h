@@ -1,14 +1,18 @@
 #pragma once
 #include <stdint.h>
 
-namespace io{
-    uint8_t inline in(uint8_t port){
+namespace port{
+    static inline uint8_t read(uint16_t port) {
         uint8_t value;
-        asm volatile("inb %b0, %b1" : "=a"(value) :  "d"(port));
+        __asm__ volatile ( "inb %w1, %b0"
+                    : "=a"(value)
+                    : "Nd"(port)
+                    : "memory");
         return value;
     }
 
-    void inline out(uint8_t port, uint8_t value){
-        asm volatile("outb %b0, %b1" : : "d"(port), "a"(value));
+    static inline void write(uint16_t port, uint8_t value)
+    {
+        __asm__ volatile ( "outb %b0, %w1" : : "a"(value), "Nd"(port) : "memory");
     }
 }

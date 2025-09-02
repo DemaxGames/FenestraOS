@@ -5,7 +5,7 @@ CXXFLAGS = -ffreestanding -m32 -g -I include
 LD = i686-elf-ld
 LDFLAGS = -nostartfiles -nostdlib -nolibc -LE:\msys64\usr\lib\gcc\i386-elf\12.2.0 E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtbegin.o E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtend.o
 AC = nasm
-AFLAGS = -f elf -i src/
+AFLAGS = -felf32 -i src/
 
 SRC = src
 
@@ -16,6 +16,7 @@ COBJS := $(patsubst %.cpp, %.o, $(CSRCS)) #C object files
 
 ASRCS = $(wildcard $(SRC)/*.asm) #Assembly source files
 ASRCS := $(ASRCS) $(wildcard $(SRC)/kernel/*.asm)
+ASRCS := $(ASRCS) $(wildcard $(SRC)/drivers/*.asm)
 ASRCS := $(ASRCS) $(wildcard $(SRC)/kernel/*.S)
 AOBJS := $(patsubst %.asm, %.o, $(ASRCS)) #Assembly object files
 AOBJS := $(patsubst %.S, %.o, $(AOBJS))
@@ -38,7 +39,7 @@ boot.bin: $(BSRC)
 	$(AC) -f bin -i src/boot $(BSRC) -o $@
 
 kernel.bin: $(COBJS) $(AOBJS)
-	$(LD) $(LDFLAGS) $(COBJS) $(AOBJS) -lgcc -Tlinker/kernel.ld --oformat binary -o $@
+	$(LD) $(LDFLAGS) $(AOBJS) $(COBJS) -lgcc -Tlinker/kernel.ld --oformat binary -o $@
 
 %.o: %.cpp
 	$(CXXC) $(CXXFLAGS) -c $< -o $@
