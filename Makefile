@@ -1,8 +1,9 @@
 TARGET = fenestra
 
 CXXC = i686-elf-g++
-CXXFLAGS = -nostdlib -ffreestanding -m32 -g
+CXXFLAGS = -ffreestanding -m32 -g -I include 
 LD = i686-elf-ld
+LDFLAGS = -nostartfiles -nostdlib -nolibc -LE:\msys64\usr\lib\gcc\i386-elf\12.2.0 E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtbegin.o E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtend.o
 AC = nasm
 AFLAGS = -f elf -i src/
 
@@ -10,18 +11,21 @@ SRC = src
 
 CSRCS = $(wildcard $(SRC)/*.cpp) #C source files
 CSRCS := $(CSRCS) $(wildcard $(SRC)/kernel/*.cpp)
+CSRCS := $(CSRCS) $(wildcard $(SRC)/drivers/*.cpp)
 COBJS := $(patsubst %.cpp, %.o, $(CSRCS)) #C object files
 
 ASRCS = $(wildcard $(SRC)/*.asm) #Assembly source files
 ASRCS := $(ASRCS) $(wildcard $(SRC)/kernel/*.asm)
+ASRCS := $(ASRCS) $(wildcard $(SRC)/kernel/*.S)
 AOBJS := $(patsubst %.asm, %.o, $(ASRCS)) #Assembly object files
+AOBJS := $(patsubst %.S, %.o, $(AOBJS))
 
 BSRC = src/boot/boot.asm #Boot source file
 ZSRC = src/boot/zeroes.asm #Zeroes source file
 
 $(TARGET): clear debug boot.bin kernel.bin zeroes.bin
 	cat "boot.bin" "kernel.bin" > "full.bin"
-	cat "full.bin" "garbage.bin" > "$(TARGET).iso"
+	cat "full.bin" "zeroes.bin" > "$(TARGET).iso"
 
 	@echo ====================================================================
 	@echo KERNEL REQUIERS $$(( ($(shell wc -c < boot.bin) + $(shell wc -c < kernel.bin)) / 512 + 1)) SECTORS
@@ -34,13 +38,16 @@ boot.bin: $(BSRC)
 	$(AC) -f bin -i src/boot $(BSRC) -o $@
 
 kernel.bin: $(COBJS) $(AOBJS)
-	$(LD) $(COBJS) $(AOBJS) -Tlinker/kernel.ld --oformat binary -o $@
+	$(LD) $(LDFLAGS) $(COBJS) $(AOBJS) -lgcc -Tlinker/kernel.ld --oformat binary -o $@
 
 %.o: %.cpp
 	$(CXXC) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.asm
 	$(AC) $(AFLAGS) $< -o $@
+
+%.o: %.S
+	$(CXXC) $(CXXFLAGS) -c $< -o $@
 
 kernel_entry.o:
 
@@ -57,4 +64,4 @@ debug:
 	@echo zeroes source file $(ZSRC)
 
 run: $(TARGET)
-	qemu-system-x86_64 $(TARGET).iso
+	qemu-system-i386 $(TARGET).iso

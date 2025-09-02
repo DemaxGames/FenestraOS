@@ -1,22 +1,19 @@
-extern "C" void PrintMemToScreen(char* mem){
-    char* vMem = (char*)0xb8000;
-    for(int i = 0; vMem < (char*)(0xb8000 + 80*25*2); i++){
-        *vMem = *mem;
-        vMem++;
-        mem++;
-        *vMem = 0x0F;
-        vMem++;
-    }
-}
+#include <drivers/vga.h>
+#include <drivers/io.h>
+#include <fenestra/kernel.h>
+
 const char* str = "Some string u know\n";
 extern "C" void main(){
-    char* start = (char*)(0x7e00 + 0x7000);
-    for(int i = 0; i < 1200; i++){
-        PrintMemToScreen(start);
-        start += 80 * 4;
-        for(int j = 0; j < 5000000; j++);
-    }
-    
+    vga::clearScreen();
+    vga::setBackgroundColor(vga::color::black);
+
+    const char* osName = "FenestraOS";
+
+    printk("Hello %s v%d.%d.%i\n", osName, 0, 0, 1);
+
+    printk(50, 24, "Time %d:%d:%d", 21, 16, 50);
+
+    printk("%b", 0x55AA);
 
     for(;;);
     return;
