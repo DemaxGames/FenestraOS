@@ -43,6 +43,7 @@
 
 *.bin
 *.iso
+*.img
 *.tags
 *.s
 

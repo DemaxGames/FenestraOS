@@ -51,5 +51,5 @@ void gdt::flush(){
 
     loadgdtr(&gdtr);
 
-    printk("GDT Loaded succesfully at adress %d\n", (uint32_t)&gdtr);
+    printk("GDT Loaded succesfully at adress %h\n", (uint32_t)&gdtr);
 }

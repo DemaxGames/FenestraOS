@@ -26,7 +26,7 @@ ZSRC = src/boot/zeroes.asm #Zeroes source file
 
 $(TARGET): clear debug boot.bin kernel.bin zeroes.bin
 	cat "boot.bin" "kernel.bin" > "full.bin"
-	cat "full.bin" "zeroes.bin" > "$(TARGET).iso"
+	cat "full.bin" "zeroes.bin" > "$(TARGET).img"
 
 	@echo ====================================================================
 	@echo KERNEL REQUIERS $$(( ($(shell wc -c < boot.bin) + $(shell wc -c < kernel.bin)) / 512 + 1)) SECTORS
@@ -65,4 +65,4 @@ debug:
 	@echo zeroes source file $(ZSRC)
 
 run: $(TARGET)
-	qemu-system-i386 $(TARGET).iso
+	qemu-system-i386 $(TARGET).img
