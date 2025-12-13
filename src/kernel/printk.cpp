@@ -66,6 +66,7 @@ void printBin(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
         n /= 2;
         if(n == 0) break;
     }
+    ptr--;
     buf[ptr--] = 'b';
     buf[ptr--] = '0';
 
@@ -94,6 +95,7 @@ void printHex(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
         n /= 16;
         if(n == 0) break;
     }
+    ptr--;
     buf[ptr--] = 'x';
     buf[ptr--] = '0';
 
@@ -137,7 +139,7 @@ int printk(const char *s, ...){
                     case 'b':
                         printBin(&printk_x, &printk_y, vga::color::cyan, va_arg(argList, int));
                         break;
-                    case 'h':
+                    case 'X':
                         printHex(&printk_x, &printk_y, vga::color::light_cyan, va_arg(argList, int));
                         break;
                     case 's':
@@ -190,6 +192,9 @@ int printk(uint8_t x, uint8_t y, const char *s, ...){
                         break;
                     case 'b':
                         printBin(&x, &y, vga::color::cyan, va_arg(argList, int));
+                        break;
+                    case 'X':
+                        printHex(&x, &y, vga::color::light_cyan, va_arg(argList, int));
                         break;
                     case 's':
                         printString(&x, &y, vga::color::light_cyan, va_arg(argList, const char*));

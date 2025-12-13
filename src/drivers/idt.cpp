@@ -1,24 +1,6 @@
 #include <drivers/idt.h>
 
-#define INTERRUPTS_COUNT 22
-
-enum Gate_Type : uint8_t{
-    Task_Gate=0x5,
-    Interrupt_Gate16b=0x6,
-    Trap_Gate16b=0x7,
-    Interrupt_Gate32b=0xE,
-    Trap_Gate32b=0xF
-};
-enum DPL : uint8_t{
-    RING0=0b0,
-    RING1=0b00100000,
-    RING2=0b01000000,
-    RING3=0b01100000
-};
-enum Valid : uint8_t{
-    valid=0b10000000,
-    not_valid=0b0
-};
+#define INTERRUPTS_COUNT 256
 
 struct __attribute__((packed)) IDTR{
     uint16_t size;
@@ -73,7 +55,23 @@ void idt::init(){
     idt::setHandler(18, isr18, idt::type::interrupt);
     idt::setHandler(19, isr19, idt::type::interrupt);
     idt::setHandler(20, isr20, idt::type::interrupt);
-    idt::setHandler(21, isr21, idt::type::interrupt);
+
+    idt::setHandler(32, irq0, idt::type::interrupt);
+    idt::setHandler(33, irq1, idt::type::interrupt);
+    idt::setHandler(34, irq2, idt::type::interrupt);
+    idt::setHandler(35, irq3, idt::type::interrupt);
+    idt::setHandler(36, irq4, idt::type::interrupt);
+    idt::setHandler(37, irq5, idt::type::interrupt);
+    idt::setHandler(38, irq6, idt::type::interrupt);
+    idt::setHandler(39, irq7, idt::type::interrupt);
+    idt::setHandler(40, irq8, idt::type::interrupt);
+    idt::setHandler(41, irq9, idt::type::interrupt);
+    idt::setHandler(42, irq10, idt::type::interrupt);
+    idt::setHandler(43, irq11, idt::type::interrupt);
+    idt::setHandler(44, irq12, idt::type::interrupt);
+    idt::setHandler(45, irq13, idt::type::interrupt);
+    idt::setHandler(46, irq14, idt::type::interrupt);
+    idt::setHandler(47, irq15, idt::type::interrupt);
 
     idtr.size = sizeof(Entry) * INTERRUPTS_COUNT;
     idtr.offset = (uint32_t)IDT;

@@ -1,7 +1,27 @@
+#pragma once
+
 #include <stdint.h>
 #include <fenestra/kernel.h>
 namespace idt
 {   
+    enum Gate_Type : uint8_t{
+    Task_Gate=0x5,
+    Interrupt_Gate16b=0x6,
+    Trap_Gate16b=0x7,
+    Interrupt_Gate32b=0xE,
+    Trap_Gate32b=0xF
+    };
+    enum DPL : uint8_t{
+        RING0=0b0,
+        RING1=0b00100000,
+        RING2=0b01000000,
+        RING3=0b01100000
+    };
+    enum Valid : uint8_t{
+        valid=0b10000000,
+        not_valid=0b0
+    };
+
     enum type{
         interrupt,
         trap
@@ -11,13 +31,12 @@ namespace idt
     void setHandler(uint8_t n, void (*foo)(), type gate);
 
     struct InterruptRegs{
-        uint32_t cr2;
-        uint32_t ds;
+        uint32_t gs, fs, es, ds;
         uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
         uint32_t number;
         uint32_t errorCode;
-        uint32_t eip, csm, eflags, useresp, ss;
-    };
+        uint32_t eip, cs, eflags, useresp, ss;
+    } __attribute__ ((packed));
 
     void isr_handler(InterruptRegs iRegs);
 
@@ -44,4 +63,21 @@ namespace idt
     extern "C" void isr20();
     extern "C" void isr21();
     extern "C" void isr22();
+    extern "C" void irq0();
+    extern "C" void irq1();
+    extern "C" void irq2();
+    extern "C" void irq3();
+    extern "C" void irq4();
+    extern "C" void irq5();
+    extern "C" void irq6();
+    extern "C" void irq7();
+    extern "C" void irq8();
+    extern "C" void irq9();
+    extern "C" void irq10();
+    extern "C" void irq11();
+    extern "C" void irq12();
+    extern "C" void irq13();
+    extern "C" void irq14();
+    extern "C" void irq15();
+    
 } // namespace idt

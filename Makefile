@@ -1,8 +1,8 @@
 TARGET = fenestra
 
-CXXC = i686-elf-g++
-CXXFLAGS = -ffreestanding -m32 -g -I include 
-LD = i686-elf-ld
+CXXC = D:\i686-elf-tools\bin\i686-elf-g++
+CXXFLAGS = -ffreestanding -m32 -I include 
+LD = D:\i686-elf-tools\bin\i686-elf-ld
 LDFLAGS = -nostartfiles -nostdlib -nolibc -LE:\msys64\usr\lib\gcc\i386-elf\12.2.0 E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtbegin.o E:\msys64\usr\lib\gcc\i386-elf\12.2.0\crtend.o
 AC = nasm
 AFLAGS = -felf32 -i src/
@@ -26,29 +26,30 @@ ZSRC = src/boot/zeroes.asm #Zeroes source file
 
 $(TARGET): clear debug boot.bin kernel.bin zeroes.bin
 	cat "boot.bin" "kernel.bin" > "full.bin"
-	cat "full.bin" "zeroes.bin" > "$(TARGET).img"
+	cat "full.bin" "zeroes.bin" > "$(TARGET).iso"
 
 	@echo ====================================================================
 	@echo KERNEL REQUIERS $$(( ($(shell wc -c < boot.bin) + $(shell wc -c < kernel.bin)) / 512 + 1)) SECTORS
 	@echo MAKE SURE YOUR BOOTLOADER LOADS THIS NUMBER OF SECTORS OR MORE
 	@echo ====================================================================
 
-	rm -f $(COBJS) $(AOBJS) boot.bin kernel.bin zeroes.bin full.bin
+	rm -f $(COBJS) $(AOBJS) zeroes.bin full.bin
 
 boot.bin: $(BSRC)
 	$(AC) -f bin -i src/boot $(BSRC) -o $@
 
 kernel.bin: $(COBJS) $(AOBJS)
-	$(LD) $(LDFLAGS) $(AOBJS) $(COBJS) -lgcc -Tlinker/kernel.ld --oformat binary -o $@
+	$(LD) $(LDFLAGS) $(AOBJS) $(COBJS) -lgcc -Tlinker/kernel.ld --oformat binary -g -o $@
+	$(LD) $(LDFLAGS) $(AOBJS) $(COBJS) -lgcc -Tlinker/kernel_debug.ld -g -o kernel.elf
 
 %.o: %.cpp
-	$(CXXC) $(CXXFLAGS) -c $< -o $@
+	$(CXXC) $(CXXFLAGS) -g -c $< -o $@
 
 %.o: %.asm
-	$(AC) $(AFLAGS) $< -o $@
+	$(AC) $(AFLAGS) -g $< -o $@
 
 %.o: %.S
-	$(CXXC) $(CXXFLAGS) -c $< -o $@
+	$(CXXC) $(CXXFLAGS) -g -c $< -o $@
 
 kernel_entry.o:
 
@@ -65,4 +66,4 @@ debug:
 	@echo zeroes source file $(ZSRC)
 
 run: $(TARGET)
-	qemu-system-i386 $(TARGET).img
+	qemu-system-i386 $(TARGET).iso
