@@ -2,9 +2,13 @@
 
 #define NUM_BUFF_SIZE 30
 #define BIN_BUFF_SIZE 17
+#define HEX_BUFF_SIZE 90
 
 uint8_t printk_x = 0;
 uint8_t printk_y = 0;
+
+uint8_t digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                    'A', 'B', 'C', 'D', 'E', 'F'};
 
 void printString(uint8_t *x, uint8_t *y, vga::color col, const char *s){
     for(int i = 0; s[i] != 0; i++){
@@ -53,20 +57,24 @@ void printInt(uint8_t *x, uint8_t *y, vga::color col, int num){
 
 void printBin(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
     char buf[BIN_BUFF_SIZE];
-    for(int i = 0; i < BIN_BUFF_SIZE; i++) buf[i] = '0';
+    for(int i = 0; i < BIN_BUFF_SIZE; i++) buf[i] = ' ';
     int ptr = BIN_BUFF_SIZE-1;
-    int n = num;
-    if(n < 0) n *= -1;
+    unsigned int n = num;
 
     for(; ptr > 0; ptr--){
-        buf[ptr] = (n % 2) + '0';
+        buf[ptr] = digits[(n % 2)];
         n /= 2;
         if(n == 0) break;
-    } 
+    }
+    ptr--;
+    buf[ptr--] = 'b';
+    buf[ptr--] = '0';
 
     for(int i = 0; i < BIN_BUFF_SIZE; i++){
-        vga::putc(*x, *y, col, buf[i]);
-        (*x)++;
+        if(buf[i] != ' '){
+            vga::putc(*x, *y, col, buf[i]);
+            (*x)++;
+        }
         if(*x > 80){
             *x = 0;
             (*y)++;
@@ -75,6 +83,36 @@ void printBin(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
     }
     (*x)--;
 }
+
+void printHex(uint8_t *x, uint8_t *y, vga::color col, unsigned int num){
+    char buf[HEX_BUFF_SIZE];
+    for(int i = 0; i < HEX_BUFF_SIZE; i++) buf[i] = ' ';
+    int ptr = HEX_BUFF_SIZE-1;
+    unsigned int n = num;
+
+    for(; ptr > 0; ptr--){
+        buf[ptr] = digits[n % 16];
+        n /= 16;
+        if(n == 0) break;
+    }
+    ptr--;
+    buf[ptr--] = 'x';
+    buf[ptr--] = '0';
+
+    for(int i = 0; i < HEX_BUFF_SIZE; i++){ 
+        if(buf[i] != ' '){
+            vga::putc(*x, *y, col, buf[i]);
+            (*x)++;
+        }
+        if(*x > 80){
+            *x = 0;
+            (*y)++;
+            if(*y > 25) *y = 0;
+        }
+    }
+    (*x)--;
+}
+
 
 int printk(const char *s, ...){
     
@@ -100,6 +138,9 @@ int printk(const char *s, ...){
                         break;
                     case 'b':
                         printBin(&printk_x, &printk_y, vga::color::cyan, va_arg(argList, int));
+                        break;
+                    case 'X':
+                        printHex(&printk_x, &printk_y, vga::color::light_cyan, va_arg(argList, int));
                         break;
                     case 's':
                         printString(&printk_x, &printk_y, vga::color::light_cyan, va_arg(argList, const char*));
@@ -151,6 +192,9 @@ int printk(uint8_t x, uint8_t y, const char *s, ...){
                         break;
                     case 'b':
                         printBin(&x, &y, vga::color::cyan, va_arg(argList, int));
+                        break;
+                    case 'X':
+                        printHex(&x, &y, vga::color::light_cyan, va_arg(argList, int));
                         break;
                     case 's':
                         printString(&x, &y, vga::color::light_cyan, va_arg(argList, const char*));
