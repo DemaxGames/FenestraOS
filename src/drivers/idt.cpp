@@ -114,8 +114,14 @@ const char *exceptions[]{
     "Control Protection Exception"
 };
 
+extern void kernel_panic(int code);
+
 extern "C" void isr_handler(idt::InterruptRegs *regs){
     if(regs->number < 22){
         printk("Exception: %s\n", exceptions[regs->number]);
+        if(regs->number == 0){
+            ((void (*)())(regs->eip))();
+        }
+        kernel_panic(regs->number);
     }
 }

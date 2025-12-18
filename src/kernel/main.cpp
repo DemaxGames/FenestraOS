@@ -48,3 +48,8 @@ extern "C" void main(){
     return;
 }
 
+void kernel_panic(int code){
+    asm volatile ("cli");
+    printk("KERNEL PAINC!!!\ncode: %d\n", code);
+    for(;;);
+}
